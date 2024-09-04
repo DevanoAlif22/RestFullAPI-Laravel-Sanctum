@@ -35,6 +35,7 @@ Route::get('/',function(){
 
 // yang bisa mengakses get product adalah yang mempunyai token dengan ability product-list
 Route::get('/product', [ProductController::class, 'index'])->middleware('auth:sanctum', 'ability:user,admin');
+Route::get('/product/{id}', [ProductController::class, 'detailProduct'])->middleware('auth:sanctum', 'ability:user,admin');
 
 Route::post('/product', [ProductController::class, 'storeProduct'])->middleware('auth:sanctum', 'ability:admin');
 Route::patch('/product/{id}', [ProductController::class, 'updateProduct'])->middleware('auth:sanctum', 'ability:admin');
@@ -43,6 +44,8 @@ Route::delete('/product/{id}', [ProductController::class, 'destroyProduct'])->mi
 // ini semisal : yang bisa mengakses post product adalah semua yang mempunyai token
 // Route::post('/product', [ProductController::class, 'storeProduct'])->middleware('auth:sanctum');
 
+Route::get('/check-token', [AuthController::class, 'checkToken'])->middleware('auth:sanctum', 'ability:user,admin');
+Route::post('/logout/user', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/register/user',[AuthController::class,'registerUser']);
 Route::post('/login/user',[AuthController::class,'loginUser']);
 

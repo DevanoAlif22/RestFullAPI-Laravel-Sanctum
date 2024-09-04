@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    public function checkToken() {
+        return response()->json([
+            'success' => true,
+            'message' => 'Token Masih Aktif'
+        ],200);
+    }
+
     public function registerUser(Request $request) {
 
         $validasi = Validator::make($request->all(),[
@@ -28,6 +35,7 @@ class AuthController extends Controller
                 'data' => $validasi->errors()
             ],401);
         }
+
         $request->password = Hash::make($request->password);
         $user = User::create([
             'role_id' => 2,
@@ -45,8 +53,7 @@ class AuthController extends Controller
 
         $validasi = Validator::make($request->all(),[
             'email' => 'required|email',
-            'password' => 'required',
-            'confirmPassword' => 'required|same:password'
+            'password' => 'required'
         ]);
 
         if($validasi->fails()) {
@@ -66,24 +73,30 @@ class AuthController extends Controller
 
         $user = User::with('roles')->where('email',$request->email)->first();
         $token = Token::where('tokenable_id',$user->id)->first();
+        $arrayRole = [$user->roles->name];
+        $newToken = $user->createToken('user-token',$arrayRole,Carbon::now()->addMinutes(30))->plainTextToken;
+
         if($token != null) {
             $now = Carbon::now();
             if($token->expires_at > $now) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Token login anda masih aktif. Silakan tunggu hingga kadaluarsa (5 menit dari saat anda login).'
-                ], 401);
-            } else {
-                $token->delete();
+                    'success' => true,
+                    'message' => 'Token login anda masih aktif. Silakan tunggu hingga kadaluarsa (30 menit dari saat anda login).',
+                    'data' => [
+                        'role_id' => $user->role_id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'token' => $newToken
+                    ]
+                ], 200);
             }
         }
-        $arrayRole = [$user->roles->name];
-        $newToken = $user->createToken('user-token',$arrayRole,Carbon::now()->addMinutes(5))->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'Anda berhasil login',
             'data' => [
+                'role_id' => $user->role_id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'token' => $newToken
@@ -91,7 +104,26 @@ class AuthController extends Controller
         ],200);
 
         // TOKEN AKAN DI SIMPAN DI TABEL PERSONAL ACCESS TOKEN
-
-
     }
+
+    public function logout(Request $request)
+    {
+    // Mendapatkan user yang sedang terautentikasi
+    $user = $request->user();
+        if ($user) {
+            // Menghapus token akses yang digunakan saat ini
+            $user->currentAccessToken()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Anda berhasil logout.',
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada pengguna yang sedang login.',
+            ], 401);
+        }
+    }
+
 }

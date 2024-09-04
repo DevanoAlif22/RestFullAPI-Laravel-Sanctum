@@ -14,7 +14,7 @@ class productController extends Controller
      */
     public function index(Request $request)
     {
-        $data = Product::orderBy('id','asc')->get();
+        $data = Product::orderBy('id','desc')->get();
         return response()->json([
             'success' => true,
             'message' => 'Data ditemukan',
@@ -27,8 +27,6 @@ class productController extends Controller
      */
     public function storeProduct(Request $request)
     {
-
-
         $validasi = Validator::make($request->all(),[
             'name' => 'required',
             'price' => 'required',
@@ -111,9 +109,31 @@ class productController extends Controller
 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function detailProduct(Request $request) {
+        $id = $request->id;
+        if($id == null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan',
+                'data' => $validasi->errors()
+            ],401);
+        }
+
+        $product = Product::where('id',$id)->first();
+        if($product == null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ],400);
+        }
+
+        $data = $product;
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil mendapatkan detail product',
+            'data' => $data
+        ],200);
+    }
     public function destroyProduct(Request $request)
     {
 

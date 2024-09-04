@@ -20,20 +20,28 @@
  </br>
  <img src="readme/website16-main.png" alt="" />
     
- <li>Request POST Login User</li>
+ <li>Request POST Register User</li>
 </br>
  <img src="readme/website16-sub1.png" alt="" />
     
- <li>Request POST Register User</li>
+ <li>Request POST Login User</li>
 </br>
  <img src="readme/website16-sub2.png" alt="" />
  
-<li>Request POST Store Product</li>
+<li>Request GET List Product</li>
 </br>
  <img src="readme/website16-sub3.png" alt="" />
  
-<li>Request PATCH Update Product</li>
+<li>Request POST Store Product</li>
 </br>
  <img src="readme/website16-sub4.png" alt="" />
+ 
+<li>Request PATCH Update Product</li>
+</br>
+ <img src="readme/website16-sub5.png" alt="" />
+ 
+<li>Request DELETE Delete Product</li>
+</br>
+ <img src="readme/website16-sub6.png" alt="" />
  
  </ul>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Token;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 
 class productController extends Controller
@@ -30,7 +31,8 @@ class productController extends Controller
         $validasi = Validator::make($request->all(),[
             'name' => 'required',
             'price' => 'required',
-            'description' => 'required'
+            'description' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1048'
         ]);
 
         if($validasi->fails()) {
@@ -41,10 +43,20 @@ class productController extends Controller
             ],400);
         }
 
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            $imagePath = 'images/' . $imageName;
+        } else {
+            $imagePath = null;
+        }
+
         $data = Product::create([
             'name' => $request->name,
             'price' => $request->price,
-            'description' => $request->description
+            'description' => $request->description,
+            'image' => $imagePath
         ]);
 
         return response()->json([
@@ -55,9 +67,7 @@ class productController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(Product $product)
     {
         //
@@ -71,7 +81,8 @@ class productController extends Controller
         $validasi = Validator::make($request->all(),[
             'name' => 'sometimes|nullable',
             'price' => 'sometimes|nullable',
-            'description' => 'sometimes|nullable'
+            'description' => 'sometimes|nullable',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1048'
         ]);
 
         if($validasi->fails()) {
@@ -83,6 +94,7 @@ class productController extends Controller
         }
 
         $product = Product::where('id',$id)->first();
+        
         if($product == null) {
             return response()->json([
                 'success' => false,
@@ -98,6 +110,19 @@ class productController extends Controller
         }
         if($request->description != null) {
             $product->description = $request->description;
+        }
+
+        if ($request->hasFile('image')) {
+            $filePath = public_path($product->image);
+            if (file_exists($filePath) && $product->image != null) {
+                unlink($filePath);
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            $imagePath = 'images/' . $imageName;
+            $product->image = $imagePath;
         }
 
         $product->save();
@@ -153,6 +178,13 @@ class productController extends Controller
                 'message' => 'Data tidak ditemukan'
             ],400);
         }
+        if($product->image != null) {
+            $filePath = public_path($product->image);
+            if (file_exists($filePath) && $product->image != null) {
+                unlink($filePath);
+            }
+        }
+
 
         $data = $product;
         $product->delete();

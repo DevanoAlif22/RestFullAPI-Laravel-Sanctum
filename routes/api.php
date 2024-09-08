@@ -38,7 +38,7 @@ Route::get('/product', [ProductController::class, 'index'])->middleware('auth:sa
 Route::get('/product/{id}', [ProductController::class, 'detailProduct'])->middleware('auth:sanctum', 'ability:user,admin');
 
 Route::post('/product', [ProductController::class, 'storeProduct'])->middleware('auth:sanctum', 'ability:admin');
-Route::patch('/product/{id}', [ProductController::class, 'updateProduct'])->middleware('auth:sanctum', 'ability:admin');
+Route::post('/product/update/{id}', [ProductController::class, 'updateProduct'])->middleware('auth:sanctum', 'ability:admin');
 Route::delete('/product/{id}', [ProductController::class, 'destroyProduct'])->middleware('auth:sanctum', 'ability:admin');
 
 // ini semisal : yang bisa mengakses post product adalah semua yang mempunyai token
